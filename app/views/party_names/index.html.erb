@@ -1,0 +1,35 @@
+<h1>Listing party_names</h1>
+
+<table>
+  <tr>
+    <th>Party ID</th>
+    <th>Function</th>
+    <th>Surname</th>
+    <th>Rest of name</th>
+    <th>Prefix</th>
+    <th>Suffix</th>
+    <th>First used date</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @party_names.each do |party_name| %>
+  <tr>
+    <td><%= party_name.party_id %></td>
+    <td><%= party_name.function %></td>
+    <td><%= party_name.surname %></td>
+    <td><%= party_name.rest_of_name %></td>
+    <td><%= party_name.prefix %></td>
+    <td><%= party_name.suffix %></td>
+    <td><%= party_name.first_used_date %></td>
+    <td><%= link_to 'Show', party_name %></td>
+    <td><%= link_to 'Edit', edit_party_name_path(party_name) %></td>
+    <td><%= link_to 'Destroy', party_name, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Party name', new_party_name_path %>

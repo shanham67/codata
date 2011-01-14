@@ -1,0 +1,5 @@
+    <% unless name_form.object.new_record? %>
+      <%= name_form.check_box '_delete' %>
+      <%= name_form.label '_delete', 'Remove' %>
+    <% end %>
+

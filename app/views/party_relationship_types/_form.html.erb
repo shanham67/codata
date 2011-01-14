@@ -1,0 +1,29 @@
+<%= form_for(@party_relationship_type) do |f| %>
+  <% if @party_relationship_type.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@party_relationship_type.errors.count, "error") %> prohibited this party_relationship_type from being saved:</h2>
+
+      <ul>
+      <% @party_relationship_type.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :description %><br />
+    <%= f.text_field :description %>
+  </div>
+  <div class="field">
+    <%= f.label :party1_role %><br />
+    <%= f.text_field :party1_role %>
+  </div>
+  <div class="field">
+    <%= f.label :party2_role %><br />
+    <%= f.text_field :party2_role %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

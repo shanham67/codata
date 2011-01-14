@@ -1,0 +1,11 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  description: MyString
+  party1_role: MyString
+  party2_role: MyString
+
+two:
+  description: MyString
+  party1_role: MyString
+  party2_role: MyString

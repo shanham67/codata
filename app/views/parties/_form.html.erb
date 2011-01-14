@@ -1,0 +1,41 @@
+<%= form_for(@party) do |f| %>
+  <% if @party.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@party.errors.count, "error") %> prohibited this party from being saved:</h2>
+
+      <ul>
+      <% @party.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <b>Names:</b><br>
+  <%= f.fields_for :names do |name_form| %>
+    <%= name_form.label :rest_of_name %>
+    <%= name_form.text_field :rest_of_name %>
+    <%= name_form.text_field :surname %><br />
+  <% end %>
+  <br>
+
+  <div class="field">
+    <%= f.label :begin_date %><br />
+    <%= f.date_select :begin_date, :start_year => 1920 %>
+  </div>
+  <div class="field">
+    <%= f.label :end_date %><br />
+    <%= f.date_select :end_date, :start_year => 1920, :include_blank => true %>
+  </div>
+  <div class="field">
+    <%= f.label :active_party_id %><br />
+    <%= f.text_field :active_party_id %>
+  </div>
+  <div class="field">
+    <%= f.label :superceded_date %><br />
+    <%= f.date_select :superceded_date, :include_blank => true %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

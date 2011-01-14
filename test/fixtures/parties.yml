@@ -1,0 +1,13 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  begin_date: 2011-01-13
+  end_date: 2011-01-13
+  active_party_id: 1
+  superceded_date: 2011-01-13
+
+two:
+  begin_date: 2011-01-13
+  end_date: 2011-01-13
+  active_party_id: 1
+  superceded_date: 2011-01-13

@@ -1,0 +1,20 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Description:</b>
+  <%= @party_relationship_type.description %>
+</p>
+
+<p>
+  <b>Party1 role:</b>
+  <%= @party_relationship_type.party1_role %>
+</p>
+
+<p>
+  <b>Party2 role:</b>
+  <%= @party_relationship_type.party2_role %>
+</p>
+
+
+<%= link_to 'Edit', edit_party_relationship_type_path(@party_relationship_type) %> |
+<%= link_to 'Back', party_relationship_types_path %>

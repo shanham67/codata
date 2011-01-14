@@ -1,0 +1,19 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  party: 
+  function: MyString
+  surname: MyString
+  rest_of_name: MyString
+  prefix: MyString
+  suffix: MyString
+  first_used_date: 2011-01-13
+
+two:
+  party: 
+  function: MyString
+  surname: MyString
+  rest_of_name: MyString
+  prefix: MyString
+  suffix: MyString
+  first_used_date: 2011-01-13

@@ -1,0 +1,40 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Party ID:</b>
+  <%= @party_name.party_id %>
+</p>
+
+<p>
+  <b>Function:</b>
+  <%= @party_name.function %>
+</p>
+
+<p>
+  <b>Surname:</b>
+  <%= @party_name.surname %>
+</p>
+
+<p>
+  <b>Rest of name:</b>
+  <%= @party_name.rest_of_name %>
+</p>
+
+<p>
+  <b>Prefix:</b>
+  <%= @party_name.prefix %>
+</p>
+
+<p>
+  <b>Suffix:</b>
+  <%= @party_name.suffix %>
+</p>
+
+<p>
+  <b>First used date:</b>
+  <%= @party_name.first_used_date %>
+</p>
+
+
+<%= link_to 'Edit', edit_party_name_path(@party_name) %> |
+<%= link_to 'Back', party_names_path %>
