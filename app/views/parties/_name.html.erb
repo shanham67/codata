@@ -1,0 +1,9 @@
+<div class="fields>
+    <%= f.label :rest_of_name %>
+    <%= f.text_field :rest_of_name %>
+    <%= f.text_field :surname %>
+    <% unless f.object.new_record? %>
+      <%= f.check_box '_destroy' %>
+      <%= f.label '_destroy', 'Remove' %>
+    <% end %>
+</div>

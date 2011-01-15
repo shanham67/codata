@@ -13,10 +13,10 @@
 
   <b>Names:</b><br>
   <%= f.fields_for :names do |name_form| %>
-    <%= name_form.label :rest_of_name %>
-    <%= name_form.text_field :rest_of_name %>
-    <%= name_form.text_field :surname %><br />
+    <%= render :partial => 'name', :locals => { :f => name_form } %>
   <% end %>
+  <p><%= add_child_link "New Name", :names %></p>
+  <%= new_child_fields_template(f, :names)%>
   <br>
 
   <div class="field">
