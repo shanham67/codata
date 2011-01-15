@@ -1,7 +1,7 @@
 class Party < ActiveRecord::Base
 
 has_many :names, :class_name => "PartyName"
-accepts_nested_attributes_for :names, :allow_destroy => true
+accepts_nested_attributes_for :names, :allow_destroy => true, :reject_if => :all_blank
 
 before_create :set_dates_to_nil
 

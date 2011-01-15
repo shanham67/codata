@@ -7,6 +7,7 @@ Codata::Application.routes.draw do
     resources :party_names, :as => 'names'
   end
 
+  root :to => "parties#index"
 #  resources :persons, :controller => :parties
 #  resources :organizations, :controller => :parties
 
