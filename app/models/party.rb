@@ -1,9 +1,21 @@
 class Party < ActiveRecord::Base
 
-has_many :names, :class_name => "PartyName"
+has_many :names, :class_name => "PartyName", :dependent => :destroy
 accepts_nested_attributes_for :names, :allow_destroy => true, :reject_if => :all_blank
 
 before_create :set_dates_to_nil
+
+def primary_name
+  self.names.first
+end
+
+def display_name
+  if self.primary_name.nil?
+    "No names associated"
+  else
+    "Party::" + self.primary_name.surname + " " + self.primary_name.rest_of_name
+  end
+end
 
 def set_dates_to_nil
   self.begin_date = nil

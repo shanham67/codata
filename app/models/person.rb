@@ -16,4 +16,11 @@ class Person < Party
     self.end_date = val
   end 
 
+  def display_name
+    if self.primary_name.nil?
+      "No name associated"
+    else
+      "Person::" + self.primary_name.rest_of_name + " " + self.primary_name.surname
+    end
+  end
 end

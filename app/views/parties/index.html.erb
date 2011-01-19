@@ -2,6 +2,7 @@
 
 <table>
   <tr>
+    <th>Name</th>
     <th>Begin date</th>
     <th>End date</th>
     <th>Active party</th>
@@ -13,17 +14,19 @@
 
 <% @parties.each do |party| %>
   <tr>
+    <td><%= party.display_name %></td>
     <td><%= party.begin_date %></td>
     <td><%= party.end_date %></td>
     <td><%= party.active_party_id %></td>
     <td><%= party.superceded_date %></td>
     <td><%= link_to 'Show', party %></td>
     <td><%= link_to 'Edit', edit_party_path(party) %></td>
-    <td><%= link_to 'Destroy', party, :confirm => 'Are you sure?', :method => :delete %></td>
+    <td><%= link_to 'Delete', party, :confirm => 'Are you sure?', :method => :delete %></td>
   </tr>
 <% end %>
 </table>
 
 <br />
 
-<%= link_to 'New Party', new_party_path %>
+<%= link_to 'New Organization', new_party_path({:type => "Organization"}) %>
+<%= link_to 'New Person', new_party_path({:type => "Person"}) %>

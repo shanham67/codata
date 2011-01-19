@@ -7,7 +7,7 @@
 <br>
 
 <p>
-<% if @party.type = "Person" %>
+<% if @party.type == "Person" %>
   <b>Birthday:</b>
   <%= @party.begin_date %>
   <% unless @party.end_date.nil? %>

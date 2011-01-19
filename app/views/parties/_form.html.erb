@@ -2,25 +2,38 @@
   <% if @party.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@party.errors.count, "error") %> prohibited this party from being saved:</h2>
-
+     
       <ul>
-      <% @party.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
-    </div>
-  <% end %>
+        <% @party.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+    </ul>
+  </div>
+ <% end %>
+
+ <b>Party Type:</b> <%= @party.type %><br>
+ <%= f.hidden_field :type %>
 
   <b>Names:</b><br>
-  <%= f.fields_for :names do |name_form| %>
-    <%= render :partial => 'name', :locals => { :f => name_form } %>
-  <% end %>
-  <p><%= add_child_link "New Name", :names %></p>
-  <%= new_child_fields_template(f, :names)%>
+  <% if @party.type == "Person" %>
+    <%= f.fields_for :names do |builder| %>
+      <%= render 'name_fields', :f => builder %>
+    <% end %>
+    <p><%= link_to_add_fields "New Name", f, :names %></p>
+  <% else %>
+    <%= f.fields_for :names do |builder| %>
+      <%= render 'orgname_fields', :f => builder %>
+    <% end %>
+  <p><%= link_to_add_fields_w_partial "New Orgname", f, :names, "orgname_fields" %></p>
+<% end %>
   <br>
 
   <div class="field">
-    <%= f.label :begin_date %><br />
+    <% if @party.type == "Person" %>
+      Birthday:<br />
+    <% else %>
+      <%= f.label :begin_date %><br />
+    <% end %>
     <%= f.date_select :begin_date, :start_year => 1920 %>
   </div>
   <div class="field">

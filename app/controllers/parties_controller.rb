@@ -24,7 +24,12 @@ class PartiesController < ApplicationController
   # GET /parties/new
   # GET /parties/new.xml
   def new
-    @party = Party.new
+      if params[:type] == "Person"
+        @party = Person.new
+      else
+        @party = Organization.new
+      end
+    @party.names.build
 
     respond_to do |format|
       format.html # new.html.erb
@@ -40,7 +45,15 @@ class PartiesController < ApplicationController
   # POST /parties
   # POST /parties.xml
   def create
-    @party = Party.new(params[:party])
+#    puts "create: '" + params[:type] + "'"
+    if params[:party][:type] == "Person"
+      @party = Person.new(params[:party])
+      print "here1"
+      @party.type = "Person"
+      print "here2"
+    else
+      @party = Organization.new(params[:party])
+    end
 
     respond_to do |format|
       if @party.save
@@ -58,10 +71,8 @@ class PartiesController < ApplicationController
   def update
     @party = Party.find(params[:id])
 
-print "here0"
     respond_to do |format|
       if @party.update_attributes(params[:party])
-print "here1"
         @party.save
         format.html { redirect_to(@party, :notice => 'Party was successfully updated.') }
         format.xml  { head :ok }
