@@ -1,0 +1,8 @@
+<div class="fields">
+    <% if :type == "Person" %>
+      <%= f.label :rest_of_name %>
+      <%= f.text_field :rest_of_name %>
+    <% end %>
+    <%= f.text_field :surname %>
+    <%= link_to_remove_fields "remove", f %><br />
+</div>
