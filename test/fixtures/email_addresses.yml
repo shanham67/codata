@@ -1,0 +1,13 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  emailable_id: 1
+  emailable_type: MyString
+  url: MyString
+  description: MyString
+
+two:
+  emailable_id: 1
+  emailable_type: MyString
+  url: MyString
+  description: MyString

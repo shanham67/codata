@@ -1,0 +1,13 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  description: MyString
+  callable_id: 1
+  callable_type: MyString
+  dial_code: MyString
+
+two:
+  description: MyString
+  callable_id: 1
+  callable_type: MyString
+  dial_code: MyString

@@ -28,6 +28,16 @@
 <% end %>
   <br>
 
+  <%= f.fields_for :phone_numbers do |builder| %>
+    <%= render 'phone_number_fields', :f => builder %>
+  <% end %>
+  <p><%= link_to_add_fields "New Phone", f, :phone_numbers %></p>
+
+  <%= f.fields_for :email_addresses do |builder| %>
+    <%= render 'email_address_fields', :f => builder %>
+  <% end %>
+  <p><%= link_to_add_fields "New Email", f, :email_addresses %></p>
+
   <div class="field">
     <% if @party.type == "Person" %>
       Birthday:<br />

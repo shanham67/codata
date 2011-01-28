@@ -1,0 +1,24 @@
+<% title "Phone Number" %>
+
+<p>
+  <strong>Description:</strong>
+  <%= @phone_number.description %>
+</p>
+<p>
+  <strong>Callable:</strong>
+  <%= @phone_number.callable_id %>
+</p>
+<p>
+  <strong>Callable Type:</strong>
+  <%= @phone_number.callable_type %>
+</p>
+<p>
+  <strong>Dial Code:</strong>
+  <%= @phone_number.dial_code %>
+</p>
+
+<p>
+  <%= link_to "Edit", edit_phone_number_path(@phone_number) %> |
+  <%= link_to "Destroy", @phone_number, :confirm => 'Are you sure?', :method => :delete %> |
+  <%= link_to "View All", phone_numbers_path %>
+</p>

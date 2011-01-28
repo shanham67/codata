@@ -1,0 +1,21 @@
+<% title "Phone Numbers" %>
+
+<table>
+  <tr>
+    <th align="left">Party</th>
+    <th>Description</th>
+    <th>Dial Code</th>
+  </tr>
+  <% for phone_number in @phone_numbers %>
+    <tr>
+      <td><%= link_to phone_number.callable.display_name, phone_number.callable %></td>
+      <td><%= phone_number.description %></td>
+      <td><%= phone_number.dial_code %></td>
+      <td><%= link_to "Show", phone_number %></td>
+      <td><%= link_to "Edit", edit_phone_number_path(phone_number) %></td>
+      <td><%= link_to "Destroy", phone_number, :confirm => 'Are you sure?', :method => :delete %></td>
+    </tr>
+  <% end %>
+</table>
+
+<p><%= link_to "New Phone Number", new_phone_number_path %></p>

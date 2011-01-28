@@ -1,0 +1,21 @@
+<% title "Private Id Definitions" %>
+
+<table>
+  <tr>
+    <th>Party</th>
+    <th>Name</th>
+    <th>Abbreviation</th>
+  </tr>
+  <% for private_id_definition in @private_id_definitions %>
+    <tr>
+      <td><%= private_id_definition.party_id %></td>
+      <td><%= private_id_definition.name %></td>
+      <td><%= private_id_definition.abbreviation %></td>
+      <td><%= link_to "Show", private_id_definition %></td>
+      <td><%= link_to "Edit", edit_private_id_definition_path(private_id_definition) %></td>
+      <td><%= link_to "Destroy", private_id_definition, :confirm => 'Are you sure?', :method => :delete %></td>
+    </tr>
+  <% end %>
+</table>
+
+<p><%= link_to "New Private Id Definition", new_private_id_definition_path %></p>

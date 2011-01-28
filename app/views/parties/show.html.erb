@@ -6,6 +6,23 @@
   <% end %>
 <br>
 
+<b>Phone Numbers:</b><br>
+  <% @party.phone_numbers.each do |ph| %>
+    <%= ph.description %> <%= ph.dial_code %><br>
+  <% end %>
+<br>
+
+<b>Email Addresses:</b><br>
+<table>
+  <% @party.email_addresses.each do |em| %>
+    <tr>
+      <td> <%= em.url %></td>
+      <td><%= em.description %></td>
+    </tr>
+  <% end %>
+</table>
+<br>
+
 <p>
 <% if @party.type == "Person" %>
   <b>Birthday:</b>

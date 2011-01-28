@@ -1,0 +1,20 @@
+<%= form_for @phone_number do |f| %>
+  <%= f.error_messages %>
+  <p>
+    <%= f.label :description %><br />
+    <%= f.text_field :description %>
+  </p>
+  <p>
+    <%= f.label :callable_id %><br />
+    <%= f.text_field :callable_id %>
+  </p>
+  <p>
+    <%= f.label :callable_type %><br />
+    <%= f.text_field :callable_type %>
+  </p>
+  <p>
+    <%= f.label :dial_code %><br />
+    <%= f.text_field :dial_code %>
+  </p>
+  <p><%= f.submit %></p>
+<% end %>

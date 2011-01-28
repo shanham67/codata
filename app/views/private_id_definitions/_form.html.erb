@@ -1,0 +1,16 @@
+<%= form_for @private_id_definition do |f| %>
+  <%= f.error_messages %>
+  <p>
+    <%= f.label :party_id %><br />
+    <%= f.text_field :party_id %>
+  </p>
+  <p>
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </p>
+  <p>
+    <%= f.label :abbreviation %><br />
+    <%= f.text_field :abbreviation %>
+  </p>
+  <p><%= f.submit %></p>
+<% end %>

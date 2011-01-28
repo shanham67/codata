@@ -43,6 +43,8 @@ GEM
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     mime-types (1.16)
+    mocha (0.9.10)
+      rake
     mongrel (1.1)
       cgi_multipart_eof_fix (>= 2.4)
       daemons (>= 1.0.3)
@@ -50,6 +52,7 @@ GEM
       gem_plugin (>= 0.2.3)
     mongrel_experimental (1.1)
       mongrel (= 1.1)
+    nifty-generators (0.4.3)
     polyglot (0.3.1)
     rack (1.2.1)
     rack-mount (0.6.13)
@@ -82,7 +85,9 @@ PLATFORMS
 DEPENDENCIES
   cgi_multipart_eof_fix
   fastthread
+  mocha
   mongrel
   mongrel_experimental
+  nifty-generators
   rails (= 3.0.3)
   sqlite3-ruby

@@ -1,4 +1,8 @@
 Codata::Application.routes.draw do
+  resources :private_id_definitions
+
+  resources :phone_numbers
+
   resources :party_names
 
 #  resources :parties

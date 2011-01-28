@@ -13,8 +13,8 @@
 <% @party_relationship_types.each do |party_relationship_type| %>
   <tr>
     <td><%= party_relationship_type.description %></td>
-    <td><%= party_relationship_type.party1_role %></td>
-    <td><%= party_relationship_type.party2_role %></td>
+    <td><%= party_relationship_type.first_party_role %></td>
+    <td><%= party_relationship_type.second_party_role %></td>
     <td><%= link_to 'Show', party_relationship_type %></td>
     <td><%= link_to 'Edit', edit_party_relationship_type_path(party_relationship_type) %></td>
     <td><%= link_to 'Destroy', party_relationship_type, :confirm => 'Are you sure?', :method => :delete %></td>
