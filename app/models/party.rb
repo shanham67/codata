@@ -4,8 +4,7 @@ has_many :names, :class_name => "PartyName", :dependent => :destroy
 has_many :phone_numbers, :as => :callable
 has_many :email_addresses, :as => :emailable
 has_many :private_id_definitions
-has_many :first_party_roles, :class_name => "PartyRelationship", :foreign_key => :first_party_id
-has_many :second_party_roles, :class_name => "PartyRelationship", :foreign_key => :second_party_id
+has_many :relationships
 
 accepts_nested_attributes_for :names, :allow_destroy => true, :reject_if => :all_blank
 accepts_nested_attributes_for :phone_numbers, :allow_destroy => true, :reject_if => :all_blank

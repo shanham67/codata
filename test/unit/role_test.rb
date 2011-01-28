@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class PartyRelationshipTypeTest < ActiveSupport::TestCase
+class RoleTest < ActiveSupport::TestCase
   # Replace this with your real tests.
   test "the truth" do
     assert true

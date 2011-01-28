@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110128034800) do
+ActiveRecord::Schema.define(:version => 20110128060555) do
 
   create_table "email_addresses", :force => true do |t|
     t.integer  "emailable_id"
@@ -74,6 +74,23 @@ ActiveRecord::Schema.define(:version => 20110128034800) do
     t.integer  "party_id"
     t.string   "name"
     t.string   "abbreviation"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "relationships", :force => true do |t|
+    t.integer  "party_id"
+    t.integer  "role_id"
+    t.integer  "counterpart_id"
+    t.date     "begin_date"
+    t.date     "end_date"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "roles", :force => true do |t|
+    t.integer  "correlative_id"
+    t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

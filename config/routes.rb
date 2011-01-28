@@ -15,8 +15,6 @@ Codata::Application.routes.draw do
 #  resources :persons, :controller => :parties
 #  resources :organizations, :controller => :parties
 
-  resources :party_relationship_types
-
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
