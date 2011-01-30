@@ -3,8 +3,12 @@ class Party < ActiveRecord::Base
 has_many :names, :class_name => "PartyName", :dependent => :destroy
 has_many :phone_numbers, :as => :callable
 has_many :email_addresses, :as => :emailable
+has_many :addresses, :as => :addressable
 has_many :private_id_definitions
 has_many :relationships
+has_many :external_identifiers #these are how this party is identified by another party (e.g. SSN, customer_id)
+has_many :site_associations
+has_many :sites, :through=>:site_associations
 
 accepts_nested_attributes_for :names, :allow_destroy => true, :reject_if => :all_blank
 accepts_nested_attributes_for :phone_numbers, :allow_destroy => true, :reject_if => :all_blank

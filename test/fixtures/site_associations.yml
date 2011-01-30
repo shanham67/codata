@@ -1,0 +1,11 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  party_id: 1
+  site_id: 1
+  type: MyString
+
+two:
+  party_id: 1
+  site_id: 1
+  type: MyString

@@ -10,13 +10,35 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110128060555) do
+ActiveRecord::Schema.define(:version => 20110128133602) do
+
+  create_table "addresses", :force => true do |t|
+    t.integer  "addressable_id"
+    t.string   "addressable_type"
+    t.string   "function"
+    t.string   "address1"
+    t.string   "address2"
+    t.string   "city"
+    t.string   "state"
+    t.string   "zip"
+    t.string   "country"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "email_addresses", :force => true do |t|
     t.integer  "emailable_id"
     t.string   "emailable_type"
     t.string   "url"
     t.string   "description"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "external_identifiers", :force => true do |t|
+    t.integer  "party_id"
+    t.integer  "private_id_definition_id"
+    t.string   "identifier"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -90,6 +112,20 @@ ActiveRecord::Schema.define(:version => 20110128060555) do
 
   create_table "roles", :force => true do |t|
     t.integer  "correlative_id"
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "site_associations", :force => true do |t|
+    t.integer  "party_id"
+    t.integer  "site_id"
+    t.string   "type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "sites", :force => true do |t|
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
