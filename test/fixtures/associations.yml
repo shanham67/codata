@@ -1,0 +1,15 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  party_id: 1
+  associate_id: 1
+  role_id: 1
+  begin_date: 2011-01-30
+  end_date: 2011-01-30
+
+two:
+  party_id: 1
+  associate_id: 1
+  role_id: 1
+  begin_date: 2011-01-30
+  end_date: 2011-01-30

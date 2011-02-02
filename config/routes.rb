@@ -1,4 +1,6 @@
 Codata::Application.routes.draw do
+  resources :comments
+
   resources :private_id_definitions
 
   resources :phone_numbers

@@ -9,10 +9,14 @@ has_many :relationships
 has_many :external_identifiers #these are how this party is identified by another party (e.g. SSN, customer_id)
 has_many :site_associations
 has_many :sites, :through=>:site_associations
+has_many :associations
+has_many :associates, :through=>:associations
+has_many :comments, :as => :commentable
 
 accepts_nested_attributes_for :names, :allow_destroy => true, :reject_if => :all_blank
 accepts_nested_attributes_for :phone_numbers, :allow_destroy => true, :reject_if => :all_blank
 accepts_nested_attributes_for :email_addresses, :allow_destroy => true, :reject_if => :all_blank
+accepts_nested_attributes_for :comments, :allow_destroy => true, :reject_if => :all_blank
 
 before_create :set_dates_to_nil
 

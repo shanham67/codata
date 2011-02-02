@@ -38,6 +38,11 @@
   <% end %>
   <p><%= link_to_add_fields "New Email", f, :email_addresses %></p>
 
+  <%= f.fields_for :comments do |builder| %>
+    <%= render 'comment_fields', :f => builder %>
+  <% end %>
+  <p><%= link_to_add_fields "New Comment", f, :comments %></p>
+
   <div class="field">
     <% if @party.type == "Person" %>
       Birthday:<br />

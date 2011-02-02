@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110128133602) do
+ActiveRecord::Schema.define(:version => 20110202131432) do
 
   create_table "addresses", :force => true do |t|
     t.integer  "addressable_id"
@@ -22,6 +22,24 @@ ActiveRecord::Schema.define(:version => 20110128133602) do
     t.string   "state"
     t.string   "zip"
     t.string   "country"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "associations", :force => true do |t|
+    t.integer  "party_id"
+    t.integer  "associate_id"
+    t.integer  "role_id"
+    t.date     "begin_date"
+    t.date     "end_date"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "comments", :force => true do |t|
+    t.integer  "commentable_id"
+    t.string   "commentable_type"
+    t.text     "text"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
