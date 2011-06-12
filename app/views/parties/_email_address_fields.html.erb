@@ -1,7 +1,7 @@
 <div class="fields">
   <%= f.label :description %>
   <%= f.text_field :description %>
-  <%= f.label :url %>
-  <%= f.text_field :url %>
+  <%= f.label :url, "Email:" %>
+  <%= f.text_field :url, :size => 30 %>
   <%= link_to_remove_fields "remove", f %><br />
 </div>

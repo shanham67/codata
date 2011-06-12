@@ -1,0 +1,33 @@
+<div class="fields">
+  <table>
+    <tr>
+      <td><%= f.label :function %></td>
+      <td><%= f.text_field :function %></td>
+      <td><%= link_to_remove_fields "remove", f %></td>
+    </tr>
+    <tr>
+      <td><%= f.label :address1 %></td>
+      <td><%= f.text_field :address1 %></td>
+    </tr>
+    <!This works but I don't like it.  I left it in because it took me a while 5>
+    <!to figure out how to do it %>
+    <!% unless f.object.address2.blank? %>
+    <tr>
+      <td><%= f.label :address2 %></td>
+      <td><%= f.text_field :address2 %></td>
+    </tr>
+    <!% end %>
+    <tr>
+      <td><%= f.label :city %></td>
+      <td><%= f.text_field :city %></td>
+      <td><%= f.label :state %></td>
+      <td><%= f.text_field :state, :size=>3 %></td>
+      <td><%= f.label :zip %></td> 
+      <td><%= f.text_field :zip, :size=>4 %></td>
+    </tr>
+    <tr>
+      <td><%= f.label :country %></td>
+      <td><%= f.text_field :country %></td>
+    </tr>
+  </table>
+</div>

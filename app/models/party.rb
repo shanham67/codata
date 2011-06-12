@@ -1,14 +1,14 @@
 class Party < ActiveRecord::Base
 
 has_many :names, :class_name => "PartyName", :dependent => :destroy
-has_many :phone_numbers, :as => :callable
-has_many :email_addresses, :as => :emailable
-has_many :addresses, :as => :addressable
+has_many :phone_numbers, :as => :callable, :dependent => :destroy
+has_many :email_addresses, :as => :emailable, :dependent => :destroy
+has_many :addresses, :as => :addressable, :dependent => :destroy
 has_many :private_id_definitions
 has_many :relationships
 has_many :external_identifiers #these are how this party is identified by another party (e.g. SSN, customer_id)
-has_many :site_associations
-has_many :sites, :through=>:site_associations
+has_many :site_associations, :dependent => :destroy
+has_many :sites, :through=>:site_associations, :dependent => :destroy
 has_many :associations
 has_many :associates, :through=>:associations
 has_many :comments, :as => :commentable
@@ -16,7 +16,9 @@ has_many :comments, :as => :commentable
 accepts_nested_attributes_for :names, :allow_destroy => true, :reject_if => :all_blank
 accepts_nested_attributes_for :phone_numbers, :allow_destroy => true, :reject_if => :all_blank
 accepts_nested_attributes_for :email_addresses, :allow_destroy => true, :reject_if => :all_blank
+accepts_nested_attributes_for :addresses, :allow_destroy => true, :reject_if => :all_blank
 accepts_nested_attributes_for :comments, :allow_destroy => true, :reject_if => :all_blank
+accepts_nested_attributes_for :sites, :allow_destroy => true, :reject_if => :all_blank
 
 before_create :set_dates_to_nil
 

@@ -2,7 +2,7 @@ class PartiesController < ApplicationController
   # GET /parties
   # GET /parties.xml
   def index
-    @parties = Party.all
+    @parties = Party.all( :include => :names )
 
     respond_to do |format|
       format.html # index.html.erb

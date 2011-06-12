@@ -6,6 +6,39 @@
   <% end %>
 <br>
 
+<% if @party.addresses.length > 0 %>
+  <b>Addresses:</b>
+    <% @party.addresses.each do |a| %>
+    <table>
+      <tr><td><%= a.function %>:</td>
+          <td><%= a.address1 %></td></tr>
+      <% unless a.address2.empty? %>
+        <tr><td></td><td><%= a.address2 %></td></tr>
+      <% end %>
+      <tr><td></td><td><%= a.city %>, <%= a.state %> <%= a.zip %></td></tr>
+      <br>
+    </table>
+    <% end %> 
+<% end %>
+<br>
+
+<b>Sites:</b><br>
+  <% @party.sites.each do |s| %>
+    <%= s.name %><br>
+    <% s.addresses.each do |a| %>
+    <table>
+      <tr><td><%= a.function %>:</td>
+          <td><%= a.address1 %></td></tr>
+      <% unless a.address2.empty? %>
+        <tr><td></td><td><%= a.address2 %></td></tr>
+      <% end %>
+      <tr><td></td><td><%= a.city %>, <%= a.state %> <%= a.zip %> <%= a.country %></td></tr>
+      <br>
+    </table>
+    <% end %>
+  <% end %>
+<br>
+
 <b>Phone Numbers:</b><br>
   <% @party.phone_numbers.each do |ph| %>
     <%= ph.description %> <%= ph.dial_code %><br>

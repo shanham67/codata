@@ -1,6 +1,7 @@
 class PhoneNumbersController < ApplicationController
   def index
-    @phone_numbers = PhoneNumber.all
+    #eager load names
+    @phone_numbers = PhoneNumber.all(:include => {:callable => :names})
   end
 
   def show

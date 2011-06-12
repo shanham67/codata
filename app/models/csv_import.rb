@@ -83,6 +83,54 @@ class CSVImport
     puts "Foo Bar"
   end
 
+  def self.addr_is_empty( rec )
+    ( rec["c_addr1"].empty? and rec["c_addr2"].empty? and rec["c_state"].empty? and rec["c_zip"].empty? )
+  end
+
+  def self.shipto_addr_is_empty( rec )
+    ( rec["c_shipto_addr1"].empty? and rec["c_shipto_addr2"].empty? and rec["c_shipto_state"].empty? and rec["c_shipto_zip"].empty? )
+  end
+
+  def self.callable_assign( this_callable, rec)
+#    puts "callable_assign(" + this_callable.class.name + "): assigning phone numbers: " + rec["c_company"] + rec["c_phone"] + " " + rec["c_fax"] + " " + rec["c_home_phone"] + " " + rec["c_mobile_phone"]
+        unless rec["c_phone"].empty?
+          this_callable.phone_numbers.build( :dial_code=>rec["c_phone"], :description=>"Company" )
+#          puts "  c_phone: " + rec["c_phone"]
+        end
+
+        unless rec["c_fax"].empty?
+          this_callable.phone_numbers.build( :dial_code=>rec["c_fax"], :description=>"Fax" )
+#          puts "  c_fax: " + rec["c_fax"]
+        end
+
+        unless rec["c_home_phone"].empty?
+          this_callable.phone_numbers.build( :dial_code=>rec["c_home_phone"], :description=>"Home?" )
+#          puts "  c_home_phone: " + rec["c_home_phone"]
+        end
+
+        unless rec["c_mobile_phone"].empty?
+          this_callable.phone_numbers.build( :dial_code=>rec["c_mobile_phone"], :description=>"Mobile" )
+#          puts "  c_mobile_phone: " + rec["c_mobile_phone"]
+        end
+  end
+
+  def self.org_site_name( rec )
+    if rec["c_city"].empty?
+      rec["c_company"] + "-" + rec["c_addr1"]
+    else
+      rec["c_company"] + "-" + rec["c_city"]
+    end 
+  end
+
+  def self.split_person_name( n )
+    v = n.split(" ")
+    if v.length == 2
+      [v[0],v[1]]
+    else
+      [v[0] + " " + v[1], v[2]]
+    end
+  end
+
   def self.import_data
     i=0
     person=[]
@@ -106,8 +154,86 @@ class CSVImport
       i+=1
     end
 
-    person.each do |p|
-      puts self.get_name_info(p)
+#    person.each do |p|
+#      puts self.get_name_info(p)
+#    end
+
+    cid = PrivateIdDefinition.first
+    
+#    org[1..10].each do |orec|
+#    org[11..20].each do |orec|
+#    org[21..30].each do |orec|
+#    org[31..100].each do |orec|
+#    org[2000..3000].each do |orec|
+    org.each do |orec|
+
+      c_co = orec["c_company'"]
+
+      #check to see if there is already a org with the same name
+      if (pn = PartyName.find_by_surname(c_co)).nil?
+        o = Organization.new
+        o.names.build( :surname=>c_co)
+      else
+        o = Party.find(pn.party_id)
+        puts "DUPLICATE:" + c_co
+      end
+
+      o.external_identifiers.build( :private_id_definition_id=> cid.id, :identifier=>orec["c_id"] )
+
+      if addr_is_empty( orec ) and pn.nil?
+        callable_assign( o, orec )
+      else
+        # 
+        # If this is a second or third occurance of this org name, create a new site
+        #
+        site = o.sites.build( :name => org_site_name( orec) )
+        site.addresses.build( :function => "Mailing", :address1=>orec["c_addr1"], :address2=>orec["c_addr2"],:city=>orec["c_city"],:state=>orec["c_state"],:zip=>orec["c_zip"],:country=>orec["c_country"])
+
+        callable_assign( site, orec )
+      end
+        
+      unless orec["c_notes"].empty?
+        o.comments.build( :text => orec["c_notes"] )
+      end
+
+      o.save
+
+    end
+
+    org_person.each do |op|
+
+      c_co = op["c_company'"]
+
+      if ( pn = PartyName.find_by_surname(c_co)).nil?
+        o = Organization.new
+        o.names.build( :surname=>c_co)
+      else
+        o = Party.find(pn.party_id)
+        puts "DUPLICATE:" + c_co
+      end
+
+      fn = "First Name"
+      ln = "Last Name"
+      if (op["c_first_name"].blank? and op["c_last_name"].blank? )
+        if op["c_person"].blank?
+          if op["c_name"].blank?
+            (fn,ln)=split_person_name(op["c_name"])
+          else
+            #
+            # ERROR - we shouldn't be here!
+            #
+          end
+        else
+          (fn,ln)=split_person_name(op["c_person"])
+        end
+      else
+        fn = op["c_first_name"]
+        ln = op["c_last_name"]
+      end
+
+      p = Person.new
+      p.names.build( :surname=>ln, :rest_of_name=>fn)
+
     end
 
     puts "org_person: " + org_person.length.to_s
@@ -115,6 +241,36 @@ class CSVImport
     puts "person:     " + person.length.to_s
     puts "other:      " + other.length.to_s
     puts "all:        " + @@data.length.to_s
+  end
+
+  def self.clear_database
+    ct = Party.all.length
+    Party.all.collect(&:delete)
+    puts "Party: " + ct.to_s + " records deleted."
+
+    ct = PartyName.all.length
+    PartyName.all.collect(&:delete)
+    puts "PartyName: " + ct.to_s + " records deleted."
+
+    ct = PhoneNumber.all.length
+    PhoneNumber.all.collect(&:delete)
+    puts "PhoneNumber: " + ct.to_s + " records deleted."
+
+    ct = ExternalIdentifier.all.length
+    ExternalIdentifier.all.collect(&:delete)
+    puts "ExternalIdentifier: " + ct.to_s + " records deleted."
+
+    ct = Site.all.length
+    Site.all.collect(&:delete)
+    puts "Site: " + ct.to_s + " records deleted."
+
+    ct = Address.all.length
+    Address.all.collect(&:delete)
+    puts "Address: " + ct.to_s + " records deleted."
+
+    ct = Comment.all.length
+    Comment.all.collect(&:delete)
+    puts "Comment: " + ct.to_s + " records deleted."
   end
 
 end

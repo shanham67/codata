@@ -1,4 +1,5 @@
 <%= form_for(@party) do |f| %>
+
   <% if @party.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@party.errors.count, "error") %> prohibited this party from being saved:</h2>
@@ -19,24 +20,48 @@
     <%= f.fields_for :names do |builder| %>
       <%= render 'name_fields', :f => builder %>
     <% end %>
-    <p><%= link_to_add_fields "New Name", f, :names %></p>
+    <%= link_to_add_fields "New Name", f, :names %>
   <% else %>
     <%= f.fields_for :names do |builder| %>
       <%= render 'orgname_fields', :f => builder %>
     <% end %>
-  <p><%= link_to_add_fields_w_partial "New Orgname", f, :names, "orgname_fields" %></p>
+  <%= link_to_add_fields_w_partial "New Orgname", f, :names, "orgname_fields" %>
 <% end %>
-  <br>
-
+<br>
+<br>
   <%= f.fields_for :phone_numbers do |builder| %>
     <%= render 'phone_number_fields', :f => builder %>
   <% end %>
-  <p><%= link_to_add_fields "New Phone", f, :phone_numbers %></p>
+  <%= link_to_add_fields "New Phone", f, :phone_numbers %>
+  <br>
+  <br>
+
+  <%= f.fields_for :addresses do |builder| %>
+    <%= render 'address_fields', :f => builder %>
+  <% end %>
+  <p>
+  <%= link_to_add_fields "New Address", f, :addresses %>
+</p>
+  <br>
+  <br>
+
+  <%= f.fields_for :sites do |builder| %>
+    <%= render 'site_fields', :f => builder %>
+  <% end %>
+  <p>
+  <%= link_to_add_fields "New Site", f, :sites %>
+</p>
+  <br>
+  <br>
 
   <%= f.fields_for :email_addresses do |builder| %>
     <%= render 'email_address_fields', :f => builder %>
   <% end %>
-  <p><%= link_to_add_fields "New Email", f, :email_addresses %></p>
+  <p>
+  <%= link_to_add_fields "New Email", f, :email_addresses %>
+</p>
+  <br>
+  <br>
 
   <%= f.fields_for :comments do |builder| %>
     <%= render 'comment_fields', :f => builder %>
