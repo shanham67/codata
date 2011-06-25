@@ -91,26 +91,43 @@ class CSVImport
     ( rec["c_shipto_addr1"].empty? and rec["c_shipto_addr2"].empty? and rec["c_shipto_state"].empty? and rec["c_shipto_zip"].empty? )
   end
 
+  def self.address_hash( rec )
+     ":address1=>'" + rec["c_addr1"] + "',:address2=>'" + rec["c_addr2"] + "',:city=>'" + rec["c_city"] + "',:state=>'" + rec["c_state"] + "',:zip=>'" + rec["c_zip"] + "'"
+  end
+
+  def self.compose_address( rec )
+     new_addr = Address.new( :address1=>rec["c_addr1"],
+                             :address2=>rec["c_addr2"],
+                             :city=>rec["c_city"],
+                             :state=>rec["c_state"],
+                             :zip=>rec["c_zip"],
+                             :country=>rec["c_country"])
+  end 
+
+  def self.assign_address( addr, rec )
+     addr.address1=rec["c_addr1"]
+     addr.address2=rec["c_addr2"]
+     addr.city=rec["c_city"]
+     addr.state=rec["c_state"]
+     addr.zip=rec["c_zip"]
+     addr.country=rec["c_country"]
+  end
+
   def self.callable_assign( this_callable, rec)
-#    puts "callable_assign(" + this_callable.class.name + "): assigning phone numbers: " + rec["c_company"] + rec["c_phone"] + " " + rec["c_fax"] + " " + rec["c_home_phone"] + " " + rec["c_mobile_phone"]
         unless rec["c_phone"].empty?
           this_callable.phone_numbers.build( :dial_code=>rec["c_phone"], :description=>"Company" )
-#          puts "  c_phone: " + rec["c_phone"]
         end
 
         unless rec["c_fax"].empty?
           this_callable.phone_numbers.build( :dial_code=>rec["c_fax"], :description=>"Fax" )
-#          puts "  c_fax: " + rec["c_fax"]
         end
 
         unless rec["c_home_phone"].empty?
           this_callable.phone_numbers.build( :dial_code=>rec["c_home_phone"], :description=>"Home?" )
-#          puts "  c_home_phone: " + rec["c_home_phone"]
         end
 
         unless rec["c_mobile_phone"].empty?
           this_callable.phone_numbers.build( :dial_code=>rec["c_mobile_phone"], :description=>"Mobile" )
-#          puts "  c_mobile_phone: " + rec["c_mobile_phone"]
         end
   end
 
@@ -127,7 +144,17 @@ class CSVImport
     if v.length == 2
       [v[0],v[1]]
     else
-      [v[0] + " " + v[1], v[2]]
+      if v[0].nil? 
+        v0 = ""
+      else
+        v0 = v[0]
+      end
+      if v[1].nil?
+        v1 = ""
+      else
+        v1=v[1]
+      end
+      [v0 + " " + v1, v[2]]
     end
   end
 
@@ -154,20 +181,34 @@ class CSVImport
       i+=1
     end
 
+    cid = PrivateIdDefinition.find_by_name("cid")
+    if( cid.nil? )
+      lhiorg = Organization.create
+      lhiorg.names.build( "LHI" )
+      lhiorg.save
+      cid = PrivateIdDefinition.new
+      cid.party_id = lhiorg.id
+      cid.name = "cid"
+      cid.save
+    else
+puts "FOUND cid"
+    end 
+    
 #    person.each do |p|
 #      puts self.get_name_info(p)
 #    end
 
     cid = PrivateIdDefinition.first
-    
+
 #    org[1..10].each do |orec|
 #    org[11..20].each do |orec|
 #    org[21..30].each do |orec|
 #    org[31..100].each do |orec|
 #    org[2000..3000].each do |orec|
+#    org[1..1000].each do |orec|
     org.each do |orec|
 
-      c_co = orec["c_company'"]
+      c_co = orec["c_company"]
 
       #check to see if there is already a org with the same name
       if (pn = PartyName.find_by_surname(c_co)).nil?
@@ -175,7 +216,7 @@ class CSVImport
         o.names.build( :surname=>c_co)
       else
         o = Party.find(pn.party_id)
-        puts "DUPLICATE:" + c_co
+        puts "DUPLICATE.1:" + c_co
       end
 
       o.external_identifiers.build( :private_id_definition_id=> cid.id, :identifier=>orec["c_id"] )
@@ -186,10 +227,41 @@ class CSVImport
         # 
         # If this is a second or third occurance of this org name, create a new site
         #
-        site = o.sites.build( :name => org_site_name( orec) )
-        site.addresses.build( :function => "Mailing", :address1=>orec["c_addr1"], :address2=>orec["c_addr2"],:city=>orec["c_city"],:state=>orec["c_state"],:zip=>orec["c_zip"],:country=>orec["c_country"])
 
-        callable_assign( site, orec )
+        new_addr = compose_address( orec )
+ 
+        found = false
+        o.sites.each do |s|
+#puts "h1"
+          s.addresses.each do |a|
+#puts "h2"
+            if a.compare( new_addr ) 
+#puts "h3"
+puts a.serializable_hash
+              a = a.merge( new_addr )
+puts a.serializable_hash
+              a.function = "Mailing"
+              a.save
+              callable_assign( s, orec )
+              found = true
+              break
+            end
+          end
+          break if found
+        end
+
+        if !found
+#puts "h4"
+#puts address_hash( orec )
+          site = o.sites.build( :name => org_site_name( orec) )
+          new_addr = site.addresses.build
+          new_addr.function = "Mailing"
+          assign_address( new_addr, orec )
+          new_addr.save
+          callable_assign( site, orec )
+          site.save
+        end
+
       end
         
       unless orec["c_notes"].empty?
@@ -201,19 +273,11 @@ class CSVImport
     end
 
     org_person.each do |op|
+#    org_person[1..1000].each do |op|
 
-      c_co = op["c_company'"]
+      if (fn = op["c_first_name"]).nil? then fn = "First Name" end
+      if (ln = op["c_last_name"]).nil? then ln = "Last Name" end
 
-      if ( pn = PartyName.find_by_surname(c_co)).nil?
-        o = Organization.new
-        o.names.build( :surname=>c_co)
-      else
-        o = Party.find(pn.party_id)
-        puts "DUPLICATE:" + c_co
-      end
-
-      fn = "First Name"
-      ln = "Last Name"
       if (op["c_first_name"].blank? and op["c_last_name"].blank? )
         if op["c_person"].blank?
           if op["c_name"].blank?
@@ -226,15 +290,39 @@ class CSVImport
         else
           (fn,ln)=split_person_name(op["c_person"])
         end
-      else
-        fn = op["c_first_name"]
-        ln = op["c_last_name"]
       end
+
+      c_co = op["c_company"]
+
+      if c_co.nil?
+        puts "No Company Info for: " + fn + " " + ln
+      else
+        if ( pn = PartyName.find_by_surname(c_co)).nil?
+          o = Organization.new
+          o.names.build( :surname=>c_co)
+          o.save
+        else
+          o = Party.find(pn.party_id)
+#          puts "DUPLICATE.2:" + c_co
+        end
+      end
+
+      fn = fn.nil? ? "FirstName":fn
+      ln = ln.nil? ? "LastName":ln
+
+puts "fn: " + fn + " ln: " + ln
 
       p = Person.new
       p.names.build( :surname=>ln, :rest_of_name=>fn)
+      p.external_identifiers.build( :private_id_definition_id=> cid.id, :identifier=>op["c_id"] )
+      unless op["c_notes"].empty?
+        p.comments.build( :text => op["c_notes"] )
+      end
+      callable_assign( p, op )
+      p.save
 
     end
+    
 
     puts "org_person: " + org_person.length.to_s
     puts "org:        " + org.length.to_s
@@ -260,9 +348,17 @@ class CSVImport
     ExternalIdentifier.all.collect(&:delete)
     puts "ExternalIdentifier: " + ct.to_s + " records deleted."
 
+    ct = PrivateIdDefinition.all.length
+    PrivateIdDefinition.all.collect(&:delete)
+    puts "PrivateIdDefinition: " + ct.to_s + " records deleted."
+
     ct = Site.all.length
     Site.all.collect(&:delete)
     puts "Site: " + ct.to_s + " records deleted."
+
+    ct = SiteAssociation.all.length
+    SiteAssociation.all.collect(&:delete)
+    puts "SiteAssociation: " + ct.to_s + " records deleted."
 
     ct = Address.all.length
     Address.all.collect(&:delete)

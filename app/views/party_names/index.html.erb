@@ -1,5 +1,12 @@
 <h1>Listing party_names</h1>
 
+<% form_tag party_names_path, :method => 'get' do %>
+  <p>
+    <%= text_field_tag :search, params[:search] %>
+    <%= submit_tag "Search", :name => nil %>
+  </p>
+<% end %>
+
 <table>
   <tr>
     <th>Party ID</th>
@@ -29,7 +36,7 @@
   </tr>
 <% end %>
 </table>
-
+<%= will_paginate @party_names %>
 <br />
 
 <%= link_to 'New Party name', new_party_name_path %>

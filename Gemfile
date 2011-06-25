@@ -5,6 +5,8 @@ gem "cgi_multipart_eof_fix"
 gem "fastthread"
 gem "mongrel_experimental"
 
+gem "will_paginate", "~> 3.0.pre2"
+
 gem 'rails', '3.0.3'
 
 gem "nifty-generators", :group => :development

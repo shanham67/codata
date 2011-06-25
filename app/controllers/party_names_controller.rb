@@ -2,7 +2,8 @@ class PartyNamesController < ApplicationController
   # GET /party_names
   # GET /party_names.xml
   def index
-    @party_names = PartyName.all
+     @party_names = PartyName.search(params[:search]).paginate(:per_page => 50, :page => params[:page])
+#    @party_names = PartyName.all
 
     respond_to do |format|
       format.html # index.html.erb
