@@ -1,6 +1,6 @@
 <h1>Listing party_names</h1>
 
-<% form_tag party_names_path, :method => 'get' do %>
+<%= form_tag party_names_path, :method => 'get' do %>
   <p>
     <%= text_field_tag :search, params[:search] %>
     <%= submit_tag "Search", :name => nil %>
@@ -23,7 +23,7 @@
 
 <% @party_names.each do |party_name| %>
   <tr>
-    <td><%= party_name.party_id %></td>
+    <td><%= link_to party_name.party_id, party_name.party %></td>
     <td><%= party_name.function %></td>
     <td><%= party_name.surname %></td>
     <td><%= party_name.rest_of_name %></td>

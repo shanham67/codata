@@ -22,6 +22,11 @@ accepts_nested_attributes_for :sites, :allow_destroy => true, :reject_if => :all
 
 before_create :set_dates_to_nil
 
+def employees
+  eid = Role.find_by_name("Employer").id
+  self.relationships.find_all_by_role_id(eid).collect{ |r| r.counterpart.party }
+end
+
 def primary_name
   self.names.first
 end

@@ -20,7 +20,7 @@ class Person < Party
     if self.primary_name.nil?
       "No name associated"
     else
-      "Person::" + self.primary_name.rest_of_name.to_s + " " + self.primary_name.surname.to_s
+      self.primary_name.rest_of_name.to_s + " " + self.primary_name.surname.to_s
     end
   end
 end

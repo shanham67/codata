@@ -1,14 +1,20 @@
 class CSVImport
-  #
-  # from console
-  # > (thedata = CSVImport.read_csv)==nil
-  # > CSVImport.set_data(thedata)
-  #
-  # ... edit some stuff in this file
-  # > reload!;CSVImport.set_data(thedata)
-  #
+#
+# from console
+# > (thedata = CSVImport.read_stash)==nil
+# > CSVImport.set_data(thedata)
+#
+# ... edit some stuff in this file
+# > reload!;CSVImport.set_data(thedata)
+#
   require 'csv'
   @@data = []
+  @@org_person = []
+
+  @@org_person = []
+  @@org = []
+  @@other = []
+  @@data_ct = 0
 
   #def self.read_csv( fname )
   def self.read_csv
@@ -18,8 +24,86 @@ class CSVImport
     @@data = string_data.map {|row| Hash[*headers.zip(row).flatten] }
   end
 
+  def self.stash_csv
+    marshall_dump = Marshal.dump(@@data)
+    file = File.new("public/tbl_contacts.stash",'w')
+    file.write marshall_dump
+    file.close
+    nil
+  end
+
+  def self.read_stash
+    file = File.open("public/tbl_contacts.stash",'r')
+    @@data = Marshal.load file.read
+    file.close
+    @@data
+  end
+
+  def self.standardize_address( rec, fld )
+    unless rec[fld].blank?
+      addr = "'" + rec[fld] + "'"
+      rec[fld] = `php public/cli_batch.php #{addr}`
+      puts addr + '=>' + rec[fld]
+    end
+  end
+
+  def self.standardize_addresses
+    @@data.each do |rec|
+      ["c_addr1", "c_addr2", "c_shipto_addr1", "c_shipto_addr2"].each do |fld|
+         standardize_address( rec, fld )
+      end
+    end
+    nil
+  end
+
+  def self.test_address_conversion
+    i=0
+    @@data.each do |o|
+      unless o["c_addr1"].blank?
+        addr = "'" + o["c_addr1"] + "'"
+        rval = `php public/cli_batch.php #{addr}`
+        puts i.to_s + " " + o["c_addr1"] + "=>" + rval
+        o["c_addr1"]=rval
+        break
+      end
+      i+=1
+    end
+    nil
+  end
+
   def self.set_data( data )
     @@data = data
+    @@person=[]
+    @@org_person=[]
+    @@org=[]
+    @@other=[]
+    @@data.each do |rec|
+      if !rec["c_company"].blank? # i.e. rec has company data
+        if (!rec["c_first_name"].blank? or !rec["c_last_name"].blank? or !rec["c_person"].blank?)
+          @@org_person.push(rec)
+        else
+          @@org.push(rec)
+        end
+      else
+        if (!rec["c_first_name"].blank? or !rec["c_last_name"].blank? or !rec["c_person"].blank? or !rec["c_name"].blank?)
+          @@person.push(rec)
+        else
+          if rec["c_city"].blank? 
+            @@other.push(rec)
+          else
+            @@org.push(rec)
+          end 
+        end
+      end
+      @@data_ct+=1
+    end
+
+    puts "org_person: " + @@org_person.length.to_s
+    puts "org:        " + @@org.length.to_s
+    puts "person:     " + @@person.length.to_s
+    puts "other:      " + @@other.length.to_s
+    puts "all:        " + @@data.length.to_s
+
     nil
   end
 
@@ -33,54 +117,6 @@ class CSVImport
 
   def self.is_person( rec )
     (rec["c_name"] == rec["c_first_name"] + " " + rec["c_last_name"]) or (rec["c_name"] == rec["c_person"])
-  end
-
-  def self.get_fld( ndx, fld )
-    fld + ":" + @@data[ndx][fld]
-  end
-
-  def self.get_given_name( rec )
-    rec["c_first_name"] + " " + rec["c_last_name"]
-  end
-
-  def self.lbl( rec, fld )
-    fld + ":" + rec[fld]
-  end
-
-  def self.get_name_info( rec )
-    self.lbl(rec,"c_name") + ", " + lbl(rec,"c_company") + ", " + lbl(rec,"c_person") + ", " + lbl(rec,"c_first_name") + ", " + lbl(rec,"c_last_name")
-  end
-
-  def self.no_company_info_recs
-    i=0
-    @@data.each do |rec|
-      if rec["c_company"].empty?
-        puts i.to_s + ":" + get_name_info(rec)
-      end
-      i+=1
-    end
-  end
-
-  def self.count_parties
-    puts "Total Records: " + @@data.length.to_s
-    npersons = 0
-    norgs = 0
-    i = 0
-
-    @@data.each do |rec|
-      if self.is_person(rec) then
-        npersons+=1
-      elsif self.is_company(rec)
-        norgs+=1
-      else
-        puts self.get_name_info(rec)
-      end
-      i+=1
-
-    end
-    puts "People: " + npersons.to_s
-    puts "Organizations: " + norgs.to_s
-    puts "Foo Bar"
   end
 
   def self.addr_is_empty( rec )
@@ -132,11 +168,9 @@ class CSVImport
   end
 
   def self.org_site_name( rec )
-    if rec["c_city"].empty?
-      rec["c_company"] + "-" + rec["c_addr1"]
-    else
-      rec["c_company"] + "-" + rec["c_city"]
-    end 
+    co = rec["c_company"]
+    co = co.blank? ? "Unknown":co
+    co = co + "-" + (rec["c_city"].blank? ? rec["c_addr1"]:rec["c_city"])
   end
 
   def self.split_person_name( n )
@@ -158,29 +192,118 @@ class CSVImport
     end
   end
 
-  def self.import_data
-    i=0
-    person=[]
-    org_person=[]
-    org=[]
-    other=[]
-    @@data.each do |rec|
-      if !rec["c_company"].blank? # i.e. rec has company data
-        if (!rec["c_first_name"].blank? or !rec["c_last_name"].blank? or !rec["c_person"].blank?)
-          org_person.push(rec)
-        else
-          org.push(rec)
-        end
-      else
-        if (!rec["c_first_name"].blank? or !rec["c_last_name"].blank? or !rec["c_person"].blank? or !rec["c_name"].blank?)
-          person.push(rec)
-        else
-          other.push(rec)
+  def self.merge_address( s, addr, func )
+puts "s.name: " + s.name
+      s.addresses.each do |a|
+        if a.compare( addr ) 
+          a = a.merge( addr )
+          a.function = func
+          a.save
+          return s
         end
       end
-      i+=1
+      nil
+  end
+
+  def self.assign_email( p, rec )
+    unless rec["c_email"].empty?
+      p.email_addresses.build( :url=>rec["c_email"] )
+    end
+  end
+
+  def self.populate_site_data( p, rec ) # p is Party
+
+    new_addr = compose_address( rec )
+    site = Site.new
+ 
+puts "populate: " + p.display_name
+    found = false
+    p.sites.each do |s|
+      site = merge_address( s, new_addr, "Mailing" )
+      found = !site.nil?
+      break if found
     end
 
+    if !found
+      site = Site.new(:name=>org_site_name(rec))
+      site.save
+      sa = p.site_associations.build
+      sa.site_id = site.id
+      sa.description = "Office"
+      sa.save
+      new_addr = site.addresses.build
+      new_addr.function = "Mailing"
+      assign_address( new_addr, rec )
+      new_addr.save
+    end
+    site.save
+    site
+  end
+
+  def self.split_fn_ln( rec )
+
+    if (rec["c_first_name"].blank? and rec["c_last_name"].blank? )
+      if rec["c_person"].blank?
+        if rec["c_name"].blank?
+          if rec["c_city"].blank?
+            rec.each_key do |k|
+              unless rec[k].blank?
+                unless rec[k] == "0"
+                  print k + "=>" + rec[k] + " "
+                end
+              end
+            end
+            fn = "NoFirstName"
+            ln = "NoLastName"
+          else
+            fn = "Unknown"
+            ln = rec["c_city"] + "-Customer"
+          end
+#          puts rec.inspect
+#          raise "# ERROR - we shouldn't be here!"
+        else
+          (fn,ln)=split_person_name(rec["c_name"])
+        end
+      else
+        (fn,ln)=split_person_name(rec["c_person"])
+      end
+    else
+      fn = rec["c_first_name"]
+      ln = rec["c_last_name"]
+    end
+    [(fn.nil? ? "":fn).capitalize,(ln.nil? ? "":ln).capitalize]
+  end
+
+  def self.dry_run
+    @@other.each do |rec|
+      (fn,ln) = split_fn_ln( rec )
+puts fn + ", " + ln
+    end
+    nil
+  end
+
+  def self.import_data
+    site = Site.new
+#
+# Assuming here that if employee is not found then employer does not exists either
+#
+    employee = Role.find_by_name("Employee")
+    if employee.nil?
+      employee = Role.new(:name=>"Employee")
+      employee.save
+    end
+
+    employer = Role.find_by_name("Employer")
+    if employer == nil
+      employer = Role.new(:name=>"Employer")
+      employer.save
+    end
+
+    employer.correlative_id=employee.id
+    employee.correlative_id=employer.id
+    employee.save
+    employer.save
+     
     cid = PrivateIdDefinition.find_by_name("cid")
     if( cid.nil? )
       lhiorg = Organization.create
@@ -194,21 +317,66 @@ class CSVImport
 puts "FOUND cid"
     end 
     
-#    person.each do |p|
-#      puts self.get_name_info(p)
-#    end
-
     cid = PrivateIdDefinition.first
 
-#    org[1..10].each do |orec|
-#    org[11..20].each do |orec|
-#    org[21..30].each do |orec|
-#    org[31..100].each do |orec|
-#    org[2000..3000].each do |orec|
-#    org[1..1000].each do |orec|
-    org.each do |orec|
+    @@person.each do |rec|
 
-      c_co = orec["c_company"]
+      (fn,ln) = split_fn_ln( rec )
+
+puts "Populating Person: fn: " + fn + " ln: " + ln
+
+      site = Site.new
+      site.name = fn + " " + "-Home"
+
+      unless addr_is_empty( rec )
+        new_addr = site.addresses.build
+        assign_address( new_addr, rec )
+        new_addr.function = "Mailing"
+      end
+
+      unless rec["c_phone"].empty?
+        site.phone_numbers.build( :dial_code=>rec["c_phone"], :description=>"Home" )
+      end
+
+      unless rec["c_fax"].empty?
+        site.phone_numbers.build( :dial_code=>rec["c_fax"], :description=>"Fax" )
+      end
+      site.save
+
+      p = Person.new
+      p.names.build( :surname=>ln, :rest_of_name=>fn)
+      p.external_identifiers.build( :private_id_definition_id=> cid.id, :identifier=>rec["c_id"] )
+
+      assign_email( p, rec )
+
+      unless rec["c_notes"].empty?
+        p.comments.build( :text => rec["c_notes"] )
+      end
+
+      unless rec["c_home_phone"].empty?
+        p.phone_numbers.build( :dial_code=>rec["c_home_phone"], :description=>"Home" )
+      end
+
+      unless rec["c_mobile_phone"].empty?
+        p.phone_numbers.build( :dial_code=>rec["c_mobile_phone"], :description=>"Mobile" )
+      end
+
+      sa = p.site_associations.build(:description=>"Home")
+      sa.site_id = site.id
+      sa.save
+      p.save
+
+      nil 
+    end
+
+#    @@org[1..1000].each do |orec|
+    @@org.each do |orec|
+
+      if orec["c_company"].blank?
+        c_co = "Unknown " + orec["c_city"] + "-customer"
+      else
+        c_co = orec["c_company"]
+      end
 
       #check to see if there is already a org with the same name
       if (pn = PartyName.find_by_surname(c_co)).nil?
@@ -216,53 +384,18 @@ puts "FOUND cid"
         o.names.build( :surname=>c_co)
       else
         o = Party.find(pn.party_id)
-        puts "DUPLICATE.1:" + c_co
+        puts "DUPLICATE.1:" + (c_co.nil? ? "How can this be?":c_co)
       end
 
       o.external_identifiers.build( :private_id_definition_id=> cid.id, :identifier=>orec["c_id"] )
 
       if addr_is_empty( orec ) and pn.nil?
-        callable_assign( o, orec )
       else
-        # 
-        # If this is a second or third occurance of this org name, create a new site
-        #
-
-        new_addr = compose_address( orec )
- 
-        found = false
-        o.sites.each do |s|
-#puts "h1"
-          s.addresses.each do |a|
-#puts "h2"
-            if a.compare( new_addr ) 
-#puts "h3"
-puts a.serializable_hash
-              a = a.merge( new_addr )
-puts a.serializable_hash
-              a.function = "Mailing"
-              a.save
-              callable_assign( s, orec )
-              found = true
-              break
-            end
-          end
-          break if found
-        end
-
-        if !found
-#puts "h4"
-#puts address_hash( orec )
-          site = o.sites.build( :name => org_site_name( orec) )
-          new_addr = site.addresses.build
-          new_addr.function = "Mailing"
-          assign_address( new_addr, orec )
-          new_addr.save
-          callable_assign( site, orec )
-          site.save
-        end
-
+        site=populate_site_data( o, orec )
       end
+
+      callable_assign( site, orec )
+      assign_email( o, orec )
         
       unless orec["c_notes"].empty?
         o.comments.build( :text => orec["c_notes"] )
@@ -272,25 +405,11 @@ puts a.serializable_hash
 
     end
 
-    org_person.each do |op|
-#    org_person[1..1000].each do |op|
+    @@org_person.each do |op|
+#    @@org_person[1..1000].each do |op|
 
-      if (fn = op["c_first_name"]).nil? then fn = "First Name" end
-      if (ln = op["c_last_name"]).nil? then ln = "Last Name" end
-
-      if (op["c_first_name"].blank? and op["c_last_name"].blank? )
-        if op["c_person"].blank?
-          if op["c_name"].blank?
-            (fn,ln)=split_person_name(op["c_name"])
-          else
-            #
-            # ERROR - we shouldn't be here!
-            #
-          end
-        else
-          (fn,ln)=split_person_name(op["c_person"])
-        end
-      end
+      (fn,ln) = split_fn_ln( op )
+      site = nil
 
       c_co = op["c_company"]
 
@@ -303,70 +422,68 @@ puts a.serializable_hash
           o.save
         else
           o = Party.find(pn.party_id)
-#          puts "DUPLICATE.2:" + c_co
         end
       end
 
-      fn = fn.nil? ? "FirstName":fn
-      ln = ln.nil? ? "LastName":ln
+      assign_email( o, op )
+
+      if addr_is_empty( op )
+        if o.sites.count == 0 
+          site=o.sites.build(:name=>"Office")
+        else
+          site=populate_site_data( o, op )
+        end 
+      end 
+
+      unless op["c_phone"].empty?
+        site.phone_numbers.build( :dial_code=>op["c_phone"], :description=>"Company" )
+      end
+
+      unless op["c_fax"].empty?
+        site.phone_numbers.build( :dial_code=>op["c_fax"], :description=>"Fax" )
+      end
+      site.save
 
 puts "fn: " + fn + " ln: " + ln
 
       p = Person.new
       p.names.build( :surname=>ln, :rest_of_name=>fn)
       p.external_identifiers.build( :private_id_definition_id=> cid.id, :identifier=>op["c_id"] )
+
       unless op["c_notes"].empty?
         p.comments.build( :text => op["c_notes"] )
       end
-      callable_assign( p, op )
+
+      unless op["c_home_phone"].empty?
+        p.phone_numbers.build( :dial_code=>op["c_home_phone"], :description=>"Home?" )
+      end
+
+      unless op["c_mobile_phone"].empty?
+        p.phone_numbers.build( :dial_code=>op["c_mobile_phone"], :description=>"Mobile" )
+      end
+
+      sa = p.site_associations.build(:description=>"Office")
+      sa.site_id = site.id
+      sa.save
+      p.save
+
+      employee_relationship = p.relationships.build( :role_id=>employee.id, :begin_date=>"1/1/1970" )
+      employee_relationship.save
+      employer_relationship = o.relationships.build( :role_id=>employer.id, :begin_date=>"1/1/1970" )
+      employer_relationship.save
+      employer_relationship.counterpart_id = employee_relationship.id
+      employee_relationship.counterpart_id = employer_relationship.id
+      employee_relationship.save
+      employer_relationship.save
       p.save
 
     end
-    
-
-    puts "org_person: " + org_person.length.to_s
-    puts "org:        " + org.length.to_s
-    puts "person:     " + person.length.to_s
-    puts "other:      " + other.length.to_s
-    puts "all:        " + @@data.length.to_s
+    nil 
   end
 
   def self.clear_database
-    ct = Party.all.length
-    Party.all.collect(&:delete)
-    puts "Party: " + ct.to_s + " records deleted."
-
-    ct = PartyName.all.length
-    PartyName.all.collect(&:delete)
-    puts "PartyName: " + ct.to_s + " records deleted."
-
-    ct = PhoneNumber.all.length
-    PhoneNumber.all.collect(&:delete)
-    puts "PhoneNumber: " + ct.to_s + " records deleted."
-
-    ct = ExternalIdentifier.all.length
-    ExternalIdentifier.all.collect(&:delete)
-    puts "ExternalIdentifier: " + ct.to_s + " records deleted."
-
-    ct = PrivateIdDefinition.all.length
-    PrivateIdDefinition.all.collect(&:delete)
-    puts "PrivateIdDefinition: " + ct.to_s + " records deleted."
-
-    ct = Site.all.length
-    Site.all.collect(&:delete)
-    puts "Site: " + ct.to_s + " records deleted."
-
-    ct = SiteAssociation.all.length
-    SiteAssociation.all.collect(&:delete)
-    puts "SiteAssociation: " + ct.to_s + " records deleted."
-
-    ct = Address.all.length
-    Address.all.collect(&:delete)
-    puts "Address: " + ct.to_s + " records deleted."
-
-    ct = Comment.all.length
-    Comment.all.collect(&:delete)
-    puts "Comment: " + ct.to_s + " records deleted."
+    puts "Use: bundle exec rake db:drop; bundle exec rake db:migrate"
+    puts " to clear the database.  Much quicker."
   end
 
 end

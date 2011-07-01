@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110202131432) do
+ActiveRecord::Schema.define(:version => 20110627143835) do
 
   create_table "addresses", :force => true do |t|
     t.integer  "addressable_id"
@@ -120,7 +120,7 @@ ActiveRecord::Schema.define(:version => 20110202131432) do
   create_table "site_associations", :force => true do |t|
     t.integer  "party_id"
     t.integer  "site_id"
-    t.string   "type"
+    t.string   "description"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
