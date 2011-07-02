@@ -6,11 +6,21 @@
   <% end %>
 <br>
 
-<b>Employees:</b><br>
+<% case @party.type 
+   when "Organization" %>
+  <b>Employees:</b><br>
   <% @party.employees.each do |emp| %>
     <%= link_to emp.display_name, emp %><br>
   <% end %> 
-<br>
+<% when "Person" %>
+  <b>Employers:</b><br>
+<% end %>
+
+<table>
+<% @party.relationships.each do |r| %>
+<tr><td><%= r.counterpart.role.name %></td><td><%= link_to r.counterpart.party.display_name, r.counterpart.party %></td></tr>
+<% end %>
+</table>
 
 <% if @party.addresses.length > 0 %>
   <b>Addresses:</b>

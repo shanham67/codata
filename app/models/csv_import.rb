@@ -283,6 +283,7 @@ puts fn + ", " + ln
   end
 
   def self.import_data
+    h3_ct = 0
     site = Site.new
 #
 # Assuming here that if employee is not found then employer does not exists either
@@ -318,6 +319,92 @@ puts "FOUND cid"
     end 
     
     cid = PrivateIdDefinition.first
+
+    @@org_person.each do |op|
+#    @@org_person[1..1000].each do |op|
+
+      (fn,ln) = split_fn_ln( op )
+      site = nil
+
+      c_co = op["c_company"]
+
+      if c_co.nil?
+        puts "No Company Info for: " + fn + " " + ln
+      else
+        if ( pn = PartyName.find_by_surname(c_co)).nil?
+          o = Organization.new
+          o.names.build( :surname=>c_co)
+          o.save
+        else
+          o = Party.find(pn.party_id)
+        end
+      end
+
+puts o.display_name
+
+      assign_email( o, op )
+
+      if addr_is_empty( op )
+puts "h1"
+        if o.sites.count == 0 
+puts "h2"
+          site=o.sites.build(:name=>"Office")
+        else
+puts "h3(" + h3_ct.to_s + ")"
+          site=Site.find(o.sites.first.id) #necessary since .first returns a readonly record
+h3_ct += 1
+        end 
+      else
+puts "h4"
+        site=populate_site_data( o, op )
+      end 
+
+puts "fn: " + fn + " ln: " + ln
+
+      unless op["c_phone"].empty?
+puts "h5"
+        site.phone_numbers.build( :dial_code=>op["c_phone"], :description=>"Company" )
+      end
+
+      unless op["c_fax"].empty?
+puts "h6"
+        site.phone_numbers.build( :dial_code=>op["c_fax"], :description=>"Fax" )
+      end
+      site.save
+
+      p = Person.new
+      p.names.build( :surname=>ln, :rest_of_name=>fn)
+      p.external_identifiers.build( :private_id_definition_id=> cid.id, :identifier=>op["c_id"] )
+
+      unless op["c_notes"].empty?
+        p.comments.build( :text => op["c_notes"] )
+      end
+
+      unless op["c_home_phone"].empty?
+        p.phone_numbers.build( :dial_code=>op["c_home_phone"], :description=>"Home?" )
+      end
+
+      unless op["c_mobile_phone"].empty?
+        p.phone_numbers.build( :dial_code=>op["c_mobile_phone"], :description=>"Mobile" )
+      end
+
+      sa = p.site_associations.build(:description=>"Office")
+      sa.site_id = site.id
+      sa.save
+      p.save
+
+      employee_relationship = p.relationships.build( :role_id=>employee.id, :begin_date=>"1/1/1970" )
+      employee_relationship.save
+      employer_relationship = o.relationships.build( :role_id=>employer.id, :begin_date=>"1/1/1970" )
+      employer_relationship.save
+      employer_relationship.counterpart_id = employee_relationship.id
+      employee_relationship.counterpart_id = employer_relationship.id
+      employee_relationship.save
+      employer_relationship.save
+      p.save
+      o.save
+
+    end
 
     @@person.each do |rec|
 
@@ -405,81 +492,8 @@ puts "Populating Person: fn: " + fn + " ln: " + ln
 
     end
 
-    @@org_person.each do |op|
-#    @@org_person[1..1000].each do |op|
-
-      (fn,ln) = split_fn_ln( op )
-      site = nil
-
-      c_co = op["c_company"]
-
-      if c_co.nil?
-        puts "No Company Info for: " + fn + " " + ln
-      else
-        if ( pn = PartyName.find_by_surname(c_co)).nil?
-          o = Organization.new
-          o.names.build( :surname=>c_co)
-          o.save
-        else
-          o = Party.find(pn.party_id)
-        end
-      end
-
-      assign_email( o, op )
-
-      if addr_is_empty( op )
-        if o.sites.count == 0 
-          site=o.sites.build(:name=>"Office")
-        else
-          site=populate_site_data( o, op )
-        end 
-      end 
-
-      unless op["c_phone"].empty?
-        site.phone_numbers.build( :dial_code=>op["c_phone"], :description=>"Company" )
-      end
-
-      unless op["c_fax"].empty?
-        site.phone_numbers.build( :dial_code=>op["c_fax"], :description=>"Fax" )
-      end
-      site.save
-
-puts "fn: " + fn + " ln: " + ln
-
-      p = Person.new
-      p.names.build( :surname=>ln, :rest_of_name=>fn)
-      p.external_identifiers.build( :private_id_definition_id=> cid.id, :identifier=>op["c_id"] )
-
-      unless op["c_notes"].empty?
-        p.comments.build( :text => op["c_notes"] )
-      end
-
-      unless op["c_home_phone"].empty?
-        p.phone_numbers.build( :dial_code=>op["c_home_phone"], :description=>"Home?" )
-      end
-
-      unless op["c_mobile_phone"].empty?
-        p.phone_numbers.build( :dial_code=>op["c_mobile_phone"], :description=>"Mobile" )
-      end
-
-      sa = p.site_associations.build(:description=>"Office")
-      sa.site_id = site.id
-      sa.save
-      p.save
-
-      employee_relationship = p.relationships.build( :role_id=>employee.id, :begin_date=>"1/1/1970" )
-      employee_relationship.save
-      employer_relationship = o.relationships.build( :role_id=>employer.id, :begin_date=>"1/1/1970" )
-      employer_relationship.save
-      employer_relationship.counterpart_id = employee_relationship.id
-      employee_relationship.counterpart_id = employer_relationship.id
-      employee_relationship.save
-      employer_relationship.save
-      p.save
-
-    end
-    nil 
-  end
+    nil #return from import_data
+  end #import_data 
 
   def self.clear_database
     puts "Use: bundle exec rake db:drop; bundle exec rake db:migrate"
